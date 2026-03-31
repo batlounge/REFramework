@@ -53,7 +53,7 @@ jobs:
           git config user.email "armadrex@github.com"
           git config user.name "Armadrex"
           sed -i 's|message(STATUS "Fetching kananlib (.*)\.\.\.")|message(STATUS "Fetching kananlib (patched fork, skips steamclient64 spoof)...")|' CMakeLists.txt
-          sed -i 's|https://github.com/cursey/kananlib|https://x-access-token:${{ secrets.WORKFLOW_TOKEN }}@github.com/batlounge/kananlib|g' CMakeLists.txt
+          sed -i 's|https://github.com/cursey/kananlib|https://github.com/batlounge/kananlib|g' CMakeLists.txt
           sed -i '/batlounge\/kananlib/{n;n;s/.*/\t\tmain/}' CMakeLists.txt
           git diff --quiet CMakeLists.txt || (git add CMakeLists.txt && git commit -m "deps: keep kananlib on patched fork" && git push https://x-access-token:${{ secrets.WORKFLOW_TOKEN }}@github.com/batlounge/REFramework.git master)
 
@@ -114,6 +114,9 @@ jobs:
           submodules: recursive
           fetch-depth: 0
           persist-credentials: false
+
+      - name: Configure git credentials
+        run: git config --global url."https://x-access-token:${{ secrets.WORKFLOW_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
       - name: Configure CMake
         run: cmake -S ${{github.workspace}} -B ${{github.workspace}}/build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DDEVELOPER_MODE=ON "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
