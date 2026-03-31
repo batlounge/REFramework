@@ -164,12 +164,12 @@ FetchContent_Declare(bddisasm
 )
 FetchContent_MakeAvailable(bddisasm)
 
-message(STATUS "Fetching kananlib (praydog version)...")
+message(STATUS "Fetching kananlib (patched fork, skips steamclient64 spoof)...")
 FetchContent_Declare(kananlib
 	GIT_REPOSITORY
-		"https://github.com/cursey/kananlib"
+		"https://github.com/batlounge/kananlib"
 	GIT_TAG
-		aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+		main
 )
 FetchContent_MakeAvailable(kananlib)
 
