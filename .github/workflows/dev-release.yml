@@ -50,8 +50,8 @@ jobs:
 
       - name: Restore kananlib fork reference (prevents upstream from overwriting our patched fork)
         run: |
-          git config user.email "armadrex@github.com"
-          git config user.name "Armadrex"
+          git config user.email "dwe@github.com"
+          git config user.name "DwE"
           sed -i 's|message(STATUS "Fetching kananlib (.*)\.\.\.")|message(STATUS "Fetching kananlib (patched fork, skips steamclient64 spoof)...")|' CMakeLists.txt
           sed -i 's|https://github.com/cursey/kananlib|https://github.com/batlounge/kananlib|g' CMakeLists.txt
           sed -i '/batlounge\/kananlib/{n;n;s/.*/\t\tmain/}' CMakeLists.txt
@@ -169,7 +169,7 @@ jobs:
         uses: ncipollo/release-action@6c75be85e571768fa31b40abf38de58ba0397db5
         with:
           token: ${{ secrets.WORKFLOW_TOKEN }}
-          name: ${{format('REF Nightly Patched By Armadrex {0} ({1})', env.RUN_NUMBER, github.sha)}}
+          name: ${{format('REF Nightly Patched By Armadrex + DwE {0} ({1})', env.RUN_NUMBER, github.sha)}}
           tag: ${{format('nightly-{0}-{1}', env.RUN_NUMBER, github.sha)}}
           artifacts: ${{github.workspace}}/artifacts/**/*.zip
           makeLatest: true
