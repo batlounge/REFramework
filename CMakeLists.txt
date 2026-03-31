@@ -164,12 +164,12 @@ FetchContent_Declare(bddisasm
 )
 FetchContent_MakeAvailable(bddisasm)
 
-message(STATUS "Fetching kananlib (8c27b656734355db0f2893581fd62e838fa130ad)...")
+message(STATUS "Fetching kananlib (patched fork, skips steamclient64 spoof)...")
 FetchContent_Declare(kananlib
 	GIT_REPOSITORY
-		"https://github.com/cursey/kananlib"
+		"https://github.com/batlounge/kananlib"
 	GIT_TAG
-		8c27b656734355db0f2893581fd62e838fa130ad
+		main
 )
 FetchContent_MakeAvailable(kananlib)
 
