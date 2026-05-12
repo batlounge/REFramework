@@ -34,7 +34,7 @@ jobs:
           git remote add upstream https://github.com/praydog/REFramework
           git fetch upstream
           BEFORE=$(git rev-parse HEAD)
-          git merge -X ours upstream/master -m "sync: merge upstream reframework changes"
+          git merge upstream/master -m "sync: merge upstream reframework changes"
           if [ $? -ne 0 ]; then
             echo "Merge conflict with upstream reframework, needs manual resolution to reapply patch!"
             git merge --abort
@@ -42,6 +42,7 @@ jobs:
             exit 1
           fi
           AFTER=$(git rev-parse HEAD)
+          echo "pulled in $(git rev-list $BEFORE...$AFTER --count) new commits from upstream"
           if [ "$BEFORE" != "$AFTER" ] || [ "${{ github.event.inputs.force_build }}" == "true" ]; then
             echo "has_changes=true" >> $GITHUB_OUTPUT
           else
@@ -55,10 +56,10 @@ jobs:
           sed -i 's|message(STATUS "Fetching kananlib (.*)\.\.\.")|message(STATUS "Fetching kananlib (patched fork, skips steamclient64 spoof)...")|' CMakeLists.txt
           sed -i 's|https://github.com/cursey/kananlib|https://github.com/batlounge/kananlib|g' CMakeLists.txt
           sed -i '/batlounge\/kananlib/{n;n;s/.*/\t\tmain/}' CMakeLists.txt
-          git diff --quiet CMakeLists.txt || (git add CMakeLists.txt && git commit -m "deps: keep kananlib on patched fork" && git push https://x-access-token:${{ secrets.WORKFLOW_TOKEN }}@github.com/batlounge/REFramework.git master)
+          git diff --quiet CMakeLists.txt && echo "kananlib reference already correct, no restore needed" || (git add CMakeLists.txt && git commit -m "deps: keep kananlib on patched fork" && git push https://x-access-token:${{ secrets.WORKFLOW_TOKEN }}@github.com/batlounge/REFramework.git master && echo "kananlib reference restored")
 
       - name: Push
-        run: git push https://x-access-token:${{ secrets.WORKFLOW_TOKEN }}@github.com/batlounge/REFramework.git master || true
+        run: git push https://x-access-token:${{ secrets.WORKFLOW_TOKEN }}@github.com/batlounge/REFramework.git master && echo "pushed to master" || true
 
   csharp-release:
     needs: sync
@@ -178,7 +179,7 @@ jobs:
         uses: ncipollo/release-action@6c75be85e571768fa31b40abf38de58ba0397db5
         with:
           token: ${{ secrets.WORKFLOW_TOKEN }}
-          name: ${{format('REF Nightly Patched By Armadrex + DwE {0} ({1})', env.RUN_NUMBER, github.sha)}}
+          name: ${{format('REF V2 Nightly Patched By Armadrex + DwE {0} ({1})', env.RUN_NUMBER, github.sha)}}
           tag: ${{format('nightly-{0}-{1}', env.RUN_NUMBER, github.sha)}}
           artifacts: ${{github.workspace}}/artifacts/**/*.zip
           makeLatest: true
