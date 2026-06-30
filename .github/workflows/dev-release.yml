@@ -11,6 +11,7 @@ on:
         type: boolean
 env:
   BUILD_TYPE: Release
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 permissions:
   contents: write
 jobs:
@@ -75,7 +76,7 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Configure CMake
-        run: cmake -S ${{github.workspace}}/csharp-api -B ${{github.workspace}}/csharp-api/build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        run: cmake -S ${{github.workspace}}/csharp-api -B ${{github.workspace}}/csharp-api/build -G "Visual Studio 18 2026" -A x64 -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
       - name: Build
         run: cmake --build ${{github.workspace}}/csharp-api/build --config ${{env.BUILD_TYPE}} --target ALL_BUILD
@@ -120,7 +121,7 @@ jobs:
           python dev/audit_direct_access_clang.py
 
       - name: Configure CMake
-        run: cmake -S ${{github.workspace}} -B ${{github.workspace}}/build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DDEVELOPER_MODE=ON "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+        run: cmake -S ${{github.workspace}} -B ${{github.workspace}}/build -G "Visual Studio 18 2026" -A x64 -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DDEVELOPER_MODE=ON "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
 
       - name: Build
         run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target REFramework
@@ -171,8 +172,7 @@ jobs:
 
       - name: Set padded run number
         run: |
-          $paddedRunNumber = "{0:D5}" -f ${{ github.run_number }}
-          echo "RUN_NUMBER=$paddedRunNumber" >> $env:GITHUB_ENV
+          echo "RUN_NUMBER=${{ github.run_number }}" >> $env:GITHUB_ENV
         shell: powershell
 
       - name: Create Release
