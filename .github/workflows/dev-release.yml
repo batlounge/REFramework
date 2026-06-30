@@ -35,12 +35,22 @@ jobs:
           git remote add upstream https://github.com/praydog/REFramework
           git fetch upstream
           BEFORE=$(git rev-parse HEAD)
-          git merge upstream/master -m "sync: merge upstream reframework changes"
-          if [ $? -ne 0 ]; then
-            echo "Merge conflict with upstream reframework, needs manual resolution to reapply patch!"
-            git merge --abort
-            echo "has_changes=false" >> $GITHUB_OUTPUT
-            exit 1
+          if git merge upstream/master -m "sync: merge upstream reframework changes"; then
+            echo "merge succeeded cleanly"
+          else
+            echo "Merge conflict detected, checking if it's just dev-release.yml..."
+            CONFLICTED=$(git diff --name-only --diff-filter=U)
+            if [ "$CONFLICTED" == ".github/workflows/dev-release.yml" ]; then
+              echo "Only dev-release.yml conflicted, keeping our version"
+              git checkout --ours .github/workflows/dev-release.yml
+              git add .github/workflows/dev-release.yml
+              git commit -m "sync: merge upstream reframework changes (kept our dev-release.yml)"
+            else
+              echo "Merge conflict involves other files, needs manual resolution to reapply patch!"
+              git merge --abort
+              echo "has_changes=false" >> $GITHUB_OUTPUT
+              exit 1
+            fi
           fi
           AFTER=$(git rev-parse HEAD)
           echo "pulled in $(git rev-list $BEFORE...$AFTER --count) new commits from upstream"
@@ -48,7 +58,7 @@ jobs:
             echo "has_changes=true" >> $GITHUB_OUTPUT
           else
             echo "has_changes=false" >> $GITHUB_OUTPUT
-          fi 
+          fi
 
       - name: Restore kananlib fork reference (prevents upstream from overwriting our patched fork)
         run: |
