@@ -37,10 +37,16 @@ jobs:
           BEFORE=$(git rev-parse HEAD)
           git merge upstream/master -m "sync: merge upstream reframework changes"
           if [ $? -ne 0 ]; then
-            echo "Merge conflict with upstream reframework, needs manual resolution to reapply patch!"
-            git merge --abort
-            echo "has_changes=false" >> $GITHUB_OUTPUT
-            exit 1
+            CONFLICTS=$(git diff --name-only --diff-filter=U)
+            if [ "$CONFLICTS" != "CMakeLists.txt" ]; then
+              echo "Merge conflict with upstream reframework, needs manual resolution to reapply patch!"
+              git merge --abort
+              echo "has_changes=false" >> $GITHUB_OUTPUT
+              exit 1
+            fi
+            git checkout --theirs CMakeLists.txt
+            git add CMakeLists.txt
+            git commit -m "sync: merge upstream reframework changes"
           fi
           AFTER=$(git rev-parse HEAD)
           echo "pulled in $(git rev-list $BEFORE...$AFTER --count) new commits from upstream"
